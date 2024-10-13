@@ -26,33 +26,36 @@ export const DEFAULT_SIZE: CSSProperties = {
 export const initialNodes: AppNode[] = [
   {
     id: "a",
-    type: "input",
+    type: "universal-node",
     position: { x: 0, y: 0 },
-    data: { label: "wire" },
+    data: { label: "wire", variant: 'bottom' },
     style: {
       ...DEFAULT_SIZE,
     },
   },
   {
     id: "b",
+    type: "universal-node",
     position: { x: -100, y: 100 },
-    data: { label: "drag me!" },
+    data: { label: "drag me!", variant: 'top-bottom' },
     style: {
       ...DEFAULT_SIZE,
     },
   },
   {
     id: "c",
+    type: "universal-node",
     position: { x: 100, y: 100 },
-    data: { label: "your ideas" },
+    data: { label: "your ideas", variant: 'top-bottom' },
     style: {
       ...DEFAULT_SIZE,
     },
   },
   {
     id: "d",
+    type: "universal-node",
     position: { x: 0, y: 200 },
-    data: { label: "with React Flow" },
+    data: { label: "with React Flow", variant: 'top' },
     style: {
       ...DEFAULT_SIZE,
     },
