@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -18,33 +18,30 @@ import {
   ReactFlowInstance,
   EdgeTypes,
   Edge,
-  ControlButton
-} from '@xyflow/react';
+  ControlButton,
+} from "@xyflow/react";
 
+import "@xyflow/react/dist/style.css";
 
+import downloadIcon from "../public/download icon.jpg";
 
-import '@xyflow/react/dist/style.css';
+import { DEFAULT_SIZE, initialNodes, nodeTypes } from "./nodes";
+import { initialEdges, edgeTypes, DEFAULT_EDGE } from "./edges";
 
-import downloadIcon from '../public/download icon.jpg'
-
-import { DEFAULT_SIZE, initialNodes, nodeTypes } from './nodes';
-import { initialEdges, edgeTypes, DEFAULT_EDGE } from './edges';
-
-import ContextMenu from './ContextMenu';
-import SideBar from './SideBar';
-import { DnDProvider, useDnD } from './DnDContext';
-import { AppNode } from './nodes/types';
-import DownloadButton from './DownloadButton';
-import { toPng } from 'html-to-image';
-
+import ContextMenu from "./ContextMenu";
+import SideBar from "./SideBar";
+import { DnDProvider, useDnD } from "./DnDContext";
+import { AppNode } from "./nodes/types";
+import DownloadButton from "./DownloadButton";
+import { toPng } from "html-to-image";
 
 function export2txt(data: object) {
-
-
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {
-    type: "text/plain"
-  }));
+  a.href = URL.createObjectURL(
+    new Blob([JSON.stringify(data, null, 2)], {
+      type: "text/plain",
+    })
+  );
   a.setAttribute("download", "diagram.json");
   document.body.appendChild(a);
   a.click();
@@ -55,12 +52,43 @@ let fileHandle;
 async function fileOpen() {
   [fileHandle] = await window.showOpenFilePicker();
   const file = await fileHandle.getFile();
-  return file.text()
+  return file.text();
 }
 
-const flowKey = 'example-flow';
+const flowKey = "example-flow";
 let id = 0;
 const getId = () => `dndnode_${id++}`;
+
+function ExportToPNGButton({
+  exportTarget,
+}: {
+  exportTarget?: HTMLDivElement | null;
+}) {
+  return (
+    <ControlButton
+      onClick={() => {
+        if (!exportTarget) {
+          return;
+        }
+
+        toPng(exportTarget, {
+          filter: (node) =>
+            !(
+              node?.classList?.contains("react-flow__minimap") ||
+              node?.classList?.contains("react-flow__controls")
+            ),
+        }).then((dataUrl) => {
+          const a = document.createElement("a");
+          a.setAttribute("download", "reactflow.png");
+          a.setAttribute("href", dataUrl);
+          a.click();
+        });
+      }}
+    >
+      <img src={downloadIcon} alt="Export" width="16px" height="16px" />
+    </ControlButton>
+  );
+}
 
 function DnDFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
@@ -70,22 +98,21 @@ function DnDFlow() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
-
   const [menu, setMenu] = useState<{
-    id: number
-    top?: number | boolean
-    left?: number | boolean
-    right?: number | boolean
-    bottom?: number | boolean
+    id: number;
+    top?: number | boolean;
+    left?: number | boolean;
+    right?: number | boolean;
+    bottom?: number | boolean;
   } | null>(null);
 
-
   const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge({ ...connection, ...DEFAULT_EDGE }, edges)),
+    (connection) =>
+      setEdges((edges) => addEdge({ ...connection, ...DEFAULT_EDGE }, edges)),
     [setEdges]
   );
 
-  const onNodeContextMenu: ReactFlowProps['onNodeContextMenu'] = useCallback(
+  const onNodeContextMenu: ReactFlowProps["onNodeContextMenu"] = useCallback(
     (event: React.MouseEvent, node: NodeType) => {
       // Prevent native context menu from showing
       event.preventDefault();
@@ -94,45 +121,54 @@ function DnDFlow() {
       // doesn't get positioned off-screen.
       const pane = ref.current?.getBoundingClientRect();
       if (!pane) {
-        return
+        return;
       }
 
       console.log(event.clientX, event.clientY);
-
 
       setMenu({
         id: node.id as any,
         top: event.clientY < pane.height - 200 ? event.clientY : false,
         left: event.clientX < pane.width - 200 ? event.clientX : false,
-        right: event.clientX >= pane.width - 200 ? pane.width - event.clientX : false,
+        right:
+          event.clientX >= pane.width - 200
+            ? pane.width - event.clientX
+            : false,
         bottom:
-          event.clientY >= pane.height - 200 ? pane.height - event.clientY : false,
+          event.clientY >= pane.height - 200
+            ? pane.height - event.clientY
+            : false,
       });
     },
-    [setMenu],
+    [setMenu]
   );
 
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => {
-    setMenu(null)
-    setNodes(old => old.map(item => {
-      return ({
-        ...item,
-        data: { ...item.data, edit: false },
-        style: { ...item.style, width: item.measured?.width || item.style?.width, height: item.measured?.height || item.style?.height }
+    setMenu(null);
+    setNodes((old) =>
+      old.map((item) => {
+        return {
+          ...item,
+          data: { ...item.data, edit: false },
+          style: {
+            ...item.style,
+            width: item.measured?.width || item.style?.width,
+            height: item.measured?.height || item.style?.height,
+          },
+        };
       })
-
-    }))
+    );
   }, [setMenu, setNodes]);
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      const variant = event.dataTransfer.getData('text/plain')
+      const variant = event.dataTransfer.getData("text/plain");
 
       // check if the dropped element is valid
       if (!type) {
@@ -150,27 +186,27 @@ function DnDFlow() {
         id: getId(),
         type,
         position,
-        data: { label: `${type} node`, variant },
+        data: { label: `${variant} node`, variant },
         style: {
-          ...DEFAULT_SIZE
-
-        }
+          ...DEFAULT_SIZE,
+        },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, type],
+    [screenToFlowPosition, type]
   );
 
-
-
-  const [rfInstance, setRfInstance] = useState<ReactFlowInstance<AppNode, Edge> | null>(null);
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance<
+    AppNode,
+    Edge
+  > | null>(null);
   const onSave = useCallback(() => {
     if (rfInstance) {
       const flow = rfInstance.toObject();
       localStorage.setItem(flowKey, JSON.stringify(flow));
 
-      export2txt(flow)
+      export2txt(flow);
     }
   }, [rfInstance]);
 
@@ -184,7 +220,7 @@ function DnDFlow() {
         setEdges(flow.edges || []);
         setViewport({ x, y, zoom });
       }
-    })
+    });
     // const restoreFlow = async () => {
     //   const flow = JSON.parse(localStorage.getItem(flowKey) as any);
 
@@ -199,28 +235,20 @@ function DnDFlow() {
     // restoreFlow();
   }, [setNodes, setViewport]);
 
-  const onNodeClick: ReactFlowProps['onNodeClick'] = (_, node) => {
+  const onNodeDoubleClick: ReactFlowProps["onNodeDoubleClick"] = (_, node) => {
     setNodes((nds) =>
       nds.map((item) => {
         if (node.data.edit) {
-          return item
-        }
-
-        if (item.id === node.id) {
-          return {
-            ...item,
-            data: { ...item.data, edit: true }
-          };
+          return item;
         }
 
         return {
           ...item,
-          data: { ...item.data, edit: false }
+          data: { ...item.data, edit: item.id === node.id },
         };
-      }),
+      })
     );
-  }
-
+  };
 
   return (
     <div className="dndflow">
@@ -234,7 +262,7 @@ function DnDFlow() {
           edgeTypes={edgeTypes}
           onEdgesChange={onEdgesChange}
           onInit={setRfInstance}
-          onNodeClick={onNodeClick}
+          onNodeDoubleClick={onNodeDoubleClick}
           onConnect={onConnect}
           onPaneClick={onPaneClick}
           onNodeContextMenu={onNodeContextMenu}
@@ -249,23 +277,8 @@ function DnDFlow() {
         >
           <Background gap={10} />
           <MiniMap />
-          <Controls >
-            <ControlButton onClick={() => {
-              if (ref.current === null) return
-              toPng(ref.current, {
-                filter: node => !(
-                  node?.classList?.contains('react-flow__minimap') ||
-                  node?.classList?.contains('react-flow__controls')
-                ),
-              }).then(dataUrl => {
-                const a = document.createElement('a');
-                a.setAttribute('download', 'reactflow.png');
-                a.setAttribute('href', dataUrl);
-                a.click();
-              });
-            }}>
-              <img src={downloadIcon} alt="Export" width="16px" height="16px" />
-            </ControlButton>
+          <Controls>
+            <ExportToPNGButton exportTarget={ref.current} />
           </Controls>
           {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
           <DownloadButton />
@@ -280,7 +293,6 @@ function DnDFlow() {
     </div>
   );
 }
-
 
 export default () => (
   <ReactFlowProvider>
