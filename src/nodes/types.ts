@@ -1,16 +1,47 @@
-import type { Node, BuiltInNode } from '@xyflow/react';
+import type { Node, BuiltInNode } from "@xyflow/react";
 
-export type ResizableNode = Node<{ label: string }, 'resizable-node'>;
-export type BlankNode = Node<{ label: string }, 'blank-node'>;
-export type InputRightOutputLeftNode = Node<{ label: string }, 'input-right-output-left-node'>;
-export type InputLeftOutputRightNode = Node<{ label: string }, 'input-left-output-right-node'>;
+export type ResizableNode = Node<{ label: string }, "resizable-node">;
+export type BlankNode = Node<{ label: string }, "blank-node">;
+export type InputRightOutputLeftNode = Node<
+  {
+    label: string;
+    edit?: boolean;
+    variant?:
+      | "left-right"
+      | "right-left"
+      | "top-bottom"
+      | "bottom-top"
+      | "blank";
+  },
+  "input-right-output-left-node"
+>;
+export type UniversalNode = Node<
+  {
+    label: string;
+    edit?: boolean;
+    variant?:
+      | "left-right"
+      | "right-left"
+      | "top-bottom"
+      | "bottom-top"
+      | "bottom"
+      | "top"
+      | "blank";
+  },
+  "universal-node"
+>;
 
 export type AppNode = {
-    prevType?: (BuiltInNode['type'] | ResizableNode['type'] | BlankNode['type']| InputRightOutputLeftNode['type']| InputLeftOutputRightNode['type'])
+  prevType?:
+    | BuiltInNode["type"]
+    | ResizableNode["type"]
+    | BlankNode["type"]
+    | InputRightOutputLeftNode["type"]
+    | UniversalNode["type"];
 } & (
-    | BlankNode
-    | BuiltInNode
-    | InputRightOutputLeftNode
-    | InputLeftOutputRightNode
-    | ResizableNode
+  | BlankNode
+  | BuiltInNode
+  | InputRightOutputLeftNode
+  | UniversalNode
+  | ResizableNode
 );

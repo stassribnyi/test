@@ -3,7 +3,7 @@ import type { NodeTypes } from '@xyflow/react';
 import { AppNode } from './types';
 import ResizableNode from './ResizableNode';
 import BlankNode from './BlankNode';
-import InputLeftOutputRightNode from './InputLeftOutputRightNode';
+import InputLeftOutputRightNode from './UniversalNode';
 import InputRightOutputLeftNode from './InputRightOutputLeftNode';
 
 export const DEFAULT_SIZE = {
@@ -58,7 +58,7 @@ export const initialNodes: AppNode[] = [
 export const nodeTypes = {
   'resizable-node': ResizableNode,
   'blank-node': BlankNode,
-  'input-left-output-right-node': InputLeftOutputRightNode,
+  'universal-node': InputLeftOutputRightNode,
   'input-right-output-left-node': InputRightOutputLeftNode
   // Add any of your custom nodes here!
 } satisfies NodeTypes;

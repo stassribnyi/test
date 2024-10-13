@@ -53,9 +53,9 @@ function export2txt(data: object) {
 
 let fileHandle;
 async function fileOpen() {
-    [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-    return  file.text()
+  [fileHandle] = await window.showOpenFilePicker();
+  const file = await fileHandle.getFile();
+  return file.text()
 }
 
 const flowKey = 'example-flow';
@@ -116,9 +116,11 @@ function DnDFlow() {
   const onPaneClick = useCallback(() => {
     setMenu(null)
     setNodes(old => old.map(item => {
-      console.log(item.id, item.prevType, item.type);
-
-      return ({ ...item, type: item.prevType || item.type, style: { ...item.style, width: item.measured?.width || item.style?.width, height: item.measured?.height || item.style?.height } })
+      return ({
+        ...item,
+        data: { ...item.data, edit: false },
+        style: { ...item.style, width: item.measured?.width || item.style?.width, height: item.measured?.height || item.style?.height }
+      })
 
     }))
   }, [setMenu, setNodes]);
@@ -130,6 +132,7 @@ function DnDFlow() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
+      const variant = event.dataTransfer.getData('text/plain')
 
       // check if the dropped element is valid
       if (!type) {
@@ -147,7 +150,7 @@ function DnDFlow() {
         id: getId(),
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label: `${type} node`, variant },
         style: {
           ...DEFAULT_SIZE
 
@@ -196,12 +199,33 @@ function DnDFlow() {
     // restoreFlow();
   }, [setNodes, setViewport]);
 
+  const onNodeClick: ReactFlowProps['onNodeClick'] = (_, node) => {
+    setNodes((nds) =>
+      nds.map((item) => {
+        if (node.data.edit) {
+          return item
+        }
+
+        if (item.id === node.id) {
+          return {
+            ...item,
+            data: { ...item.data, edit: true }
+          };
+        }
+
+        return {
+          ...item,
+          data: { ...item.data, edit: false }
+        };
+      }),
+    );
+  }
+
 
   return (
     <div className="dndflow">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
-          nodeOrigin={[0.5, 0.5]}
           ref={ref}
           nodes={nodes}
           nodeTypes={nodeTypes}
@@ -210,34 +234,14 @@ function DnDFlow() {
           edgeTypes={edgeTypes}
           onEdgesChange={onEdgesChange}
           onInit={setRfInstance}
-          onNodeClick={(e, node) => {
-            setNodes((nds) =>
-              nds.map((item) => {
-                if (node.type === 'resizable-node') {
-                  return item
-                }
-
-                if (item.id === node.id) {
-                  return {
-                    ...item,
-                    prevType: item.type || 'default',
-                    type: 'resizable-node'
-                  };
-                }
-
-                return {
-                  ...item,
-                  type: item.prevType || item.type,
-                };
-              }),
-            );
-          }}
+          onNodeClick={onNodeClick}
           onConnect={onConnect}
           onPaneClick={onPaneClick}
           onNodeContextMenu={onNodeContextMenu}
           onDrop={onDrop}
           onDragOver={onDragOver}
           fitView
+          nodeOrigin={[0.5, 0.5]}
           connectionMode={ConnectionMode.Loose}
           snapToGrid
           snapGrid={[10, 10]}
@@ -246,26 +250,26 @@ function DnDFlow() {
           <Background gap={10} />
           <MiniMap />
           <Controls >
-          <ControlButton onClick={() => {
-            if(ref.current === null) return
-            toPng(ref.current, {
+            <ControlButton onClick={() => {
+              if (ref.current === null) return
+              toPng(ref.current, {
                 filter: node => !(
-                    node?.classList?.contains('react-flow__minimap') ||
-                    node?.classList?.contains('react-flow__controls')
+                  node?.classList?.contains('react-flow__minimap') ||
+                  node?.classList?.contains('react-flow__controls')
                 ),
-            }).then(dataUrl => {
+              }).then(dataUrl => {
                 const a = document.createElement('a');
                 a.setAttribute('download', 'reactflow.png');
                 a.setAttribute('href', dataUrl);
                 a.click();
-            });
-        }}>
-            <img src={downloadIcon} alt="Export" width="16px" height="16px" />
-        </ControlButton>
+              });
+            }}>
+              <img src={downloadIcon} alt="Export" width="16px" height="16px" />
+            </ControlButton>
           </Controls>
           {menu && <ContextMenu onClick={onPaneClick} {...menu} />}
           <DownloadButton />
-  
+
           <Panel position="top-left">
             <button onClick={onSave}>save</button>
             <button onClick={onRestore}>restore</button>
