@@ -18,6 +18,12 @@ export default () => {
       <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'blank-node')} draggable>
         Blank Node
       </div>
+      <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'input-left-output-right-node')} draggable>
+        Input left output right
+      </div>
+      <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'input-right-output-left-node')} draggable>
+        Input right output left
+      </div>
       <div className="dndnode" onDragStart={(event) => onDragStart(event, 'default')} draggable>
         Default Node
       </div>
