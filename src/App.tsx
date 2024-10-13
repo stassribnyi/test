@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { CSSProperties, useCallback, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -16,7 +16,6 @@ import {
   ConnectionLineType,
   Panel,
   ReactFlowInstance,
-  EdgeTypes,
   Edge,
   ControlButton,
 } from "@xyflow/react";
@@ -29,9 +28,13 @@ import { DEFAULT_SIZE, initialNodes, nodeTypes } from "./nodes";
 import { initialEdges, edgeTypes, DEFAULT_EDGE } from "./edges";
 
 import ContextMenu from "./ContextMenu";
+
+// @ts-ignore
 import SideBar from "./SideBar";
+// @ts-ignore
 import { DnDProvider, useDnD } from "./DnDContext";
 import { AppNode } from "./nodes/types";
+// @ts-ignore
 import DownloadButton from "./DownloadButton";
 import { toPng } from "html-to-image";
 
@@ -50,6 +53,7 @@ function export2txt(data: object) {
 
 let fileHandle;
 async function fileOpen() {
+  // @ts-ignore
   [fileHandle] = await window.showOpenFilePicker();
   const file = await fileHandle.getFile();
   return file.text();
@@ -99,11 +103,11 @@ function DnDFlow() {
   const ref = useRef<HTMLDivElement>(null);
 
   const [menu, setMenu] = useState<{
-    id: number;
-    top?: number | boolean;
-    left?: number | boolean;
-    right?: number | boolean;
-    bottom?: number | boolean;
+    id: string;
+    top?: CSSProperties['top'];
+    left?: CSSProperties['left'];
+    right?: CSSProperties['right'];
+    bottom?: CSSProperties['bottom'];
   } | null>(null);
 
   const onConnect: OnConnect = useCallback(
@@ -128,16 +132,16 @@ function DnDFlow() {
 
       setMenu({
         id: node.id as any,
-        top: event.clientY < pane.height - 200 ? event.clientY : false,
-        left: event.clientX < pane.width - 200 ? event.clientX : false,
+        top: event.clientY < pane.height - 200 ? event.clientY : undefined,
+        left: event.clientX < pane.width - 200 ? event.clientX : undefined,
         right:
           event.clientX >= pane.width - 200
             ? pane.width - event.clientX
-            : false,
+            : undefined,
         bottom:
           event.clientY >= pane.height - 200
             ? pane.height - event.clientY
-            : false,
+            : undefined,
       });
     },
     [setMenu]

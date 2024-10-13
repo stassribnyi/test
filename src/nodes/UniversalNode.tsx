@@ -80,7 +80,7 @@ export default memo(function UniversalNode({
           handleStyle={{ borderRadius: "50%" }}
           minWidth={30}
           minHeight={30}
-          onResize={(e, params) => {
+          onResize={(_, params) => {
             setSize((old) => ({
               ...old,
               width: params.width,
