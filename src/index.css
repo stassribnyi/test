@@ -11,7 +11,6 @@ body,
   margin: 0;
 }
 
-
 .context-menu {
   background: white;
   border-style: solid;
@@ -71,6 +70,16 @@ body,
   transition: all 0.3s;
 }
 
+.node-id::-webkit-outer-spin-button,
+.node-id::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.node-id {
+  -moz-appearance: textfield; /* Firefox */
+}
 
 .dndflow .dndnode:hover {
   background-color: #c8f7d1;
@@ -95,23 +104,6 @@ body,
     max-width: 250px;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .download-image.react-flow {
   background: #1a365d;

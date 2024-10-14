@@ -4,6 +4,7 @@ export type UniversalNode = Node<
   {
     label: string;
     edit?: boolean;
+    order?: number;
     variant?:
       | "left-right"
       | "right-left"

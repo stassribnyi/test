@@ -63,7 +63,7 @@ const NodeHandles: React.FC<{
 };
 
 export default memo(function UniversalNode({
-  data: { label, edit, variant },
+  data: { label, edit, order, variant },
   id,
 }: NodeProps<UniversalNode>) {
   const nodes = useNodes();
@@ -75,6 +75,17 @@ export default memo(function UniversalNode({
 
   return (
     <>
+      {edit ? (
+        <div style={{ position: "absolute", top: -22, left: -24, width: 16 }}>
+          <input
+            className="node-id"
+            type="number"
+            style={{ minWidth: 0, width: "100%" }}
+            value={order}
+            onChange={(evt) => updateNodeData(id, { order: evt.target.value })}
+          />
+        </div>
+      ) : null}
       {edit ? (
         <NodeResizer
           handleStyle={{ borderRadius: "50%" }}
